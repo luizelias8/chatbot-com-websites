@@ -3,7 +3,8 @@ from langchain_core.messages import AIMessage, HumanMessage
 from langchain_community.document_loaders import WebBaseLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
-from langchain_openai import OpenAIEmbeddings, ChatOpenAI
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_groq import ChatGroq
 from dotenv import load_dotenv
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.chains import create_history_aware_retriever, create_retrieval_chain
@@ -22,14 +23,26 @@ def obter_base_vetores_da_url(url):
     divisor_texto = RecursiveCharacterTextSplitter()
     pedacos_documento = divisor_texto.split_documents(documento)
 
+    # Configura o modelo de embeddings
+    modelo_embeddings = HuggingFaceEmbeddings(
+        model_name='sentence-transformers/all-MiniLM-L6-v2', # Modelo a ser usado
+        model_kwargs={'device': 'cpu'}, # Usa CPU para processamento
+        encode_kwargs={'normalize_embeddings': False} # Não normaliza os embeddings
+    )
+
     # Cria a base vetorial para armazenar embeddings
-    base_vetores = Chroma.from_documents(pedacos_documento, OpenAIEmbeddings())
+    # base_vetores = Chroma.from_documents(pedacos_documento, modelo_embeddings)
+    base_vetores = Chroma.from_documents(pedacos_documento, modelo_embeddings, persist_directory='base_vetores')
     return base_vetores
 
 def obter_cadeia_recuperador_contexto(base_vetores):
     """Configura uma cadeia de recuperação de contexto baseada no histórico de conversação."""
     # Inicializa o modelo de linguagem
-    modelo = ChatOpenAI()
+    modelo = ChatGroq(
+        model='llama-3.1-70b-versatile', # Modelo LLM a ser usado
+        temperature=0.2, # Baixa temperatura para respostas mais precisas
+        max_tokens=500 # Limite de tokens na resposta
+    )
 
     # Define o recuperador de documentos baseado na base vetorial
     recuperador = base_vetores.as_retriever()
@@ -48,7 +61,11 @@ def obter_cadeia_recuperador_contexto(base_vetores):
 def obter_cadeia_rag_conversacional(cadeia_recuperador):
     """Configura a cadeia de RAG conversacional para gerar respostas baseadas no contexto recuperado."""
     # Inicializa o modelo de linguagem
-    modelo = ChatOpenAI()
+    modelo = ChatGroq(
+        model='llama-3.1-70b-versatile', # Modelo LLM a ser usado
+        temperature=0.2, # Baixa temperatura para respostas mais precisas
+        max_tokens=500 # Limite de tokens na resposta
+    )
 
     # Configura o prompt para geração de respostas
     prompt = ChatPromptTemplate.from_messages([
