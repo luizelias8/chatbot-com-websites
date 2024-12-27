@@ -39,7 +39,7 @@ def obter_cadeia_recuperador_contexto(base_vetores):
     """Configura uma cadeia de recuperação de contexto baseada no histórico de conversação."""
     # Inicializa o modelo de linguagem
     modelo = ChatGroq(
-        model='llama-3.1-70b-versatile', # Modelo LLM a ser usado
+        model='llama-3.3-70b-versatile', # Modelo LLM a ser usado
         temperature=0.2, # Baixa temperatura para respostas mais precisas
         max_tokens=500 # Limite de tokens na resposta
     )
@@ -62,7 +62,7 @@ def obter_cadeia_rag_conversacional(cadeia_recuperador):
     """Configura a cadeia de RAG conversacional para gerar respostas baseadas no contexto recuperado."""
     # Inicializa o modelo de linguagem
     modelo = ChatGroq(
-        model='llama-3.1-70b-versatile', # Modelo LLM a ser usado
+        model='llama-3.3-70b-versatile', # Modelo LLM a ser usado
         temperature=0.2, # Baixa temperatura para respostas mais precisas
         max_tokens=500 # Limite de tokens na resposta
     )
