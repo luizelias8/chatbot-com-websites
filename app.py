@@ -2,7 +2,7 @@ import streamlit as st
 from langchain_core.messages import AIMessage, HumanMessage
 from langchain_community.document_loaders import WebBaseLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.vectorstores import Chroma
+from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_groq import ChatGroq
 from dotenv import load_dotenv
@@ -39,8 +39,7 @@ def obter_base_vetores_da_url(url):
     )
 
     # Cria a base vetorial para armazenar embeddings
-    # base_vetores = Chroma.from_documents(pedacos_documento, modelo_embeddings)
-    base_vetores = Chroma.from_documents(pedacos_documento, modelo_embeddings, persist_directory='base_vetores')
+    base_vetores = FAISS.from_documents(pedacos_documento, modelo_embeddings)
     return base_vetores
 
 def obter_cadeia_recuperador_contexto(base_vetores):
@@ -119,7 +118,9 @@ def main():
 
         # Inicializa a base vetorial, se ainda não existente
         if 'base_vetores' not in st.session_state:
-            st.session_state.base_vetores = obter_base_vetores_da_url(url_website)
+            with st.spinner('Gerando o banco vetorial. Isso pode levar alguns minutos...'):
+                st.session_state.base_vetores = obter_base_vetores_da_url(url_website)
+            st.success('Banco vetorial gerado com sucesso!')
 
         # Captura a entrada do usuário
         consulta_usuario = st.chat_input('Digite sua mensagem aqui...')
