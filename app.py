@@ -13,6 +13,14 @@ from langchain.chains.combine_documents import create_stuff_documents_chain
 # Carrega as variáveis de ambiente
 load_dotenv()
 
+def inicializar_modelo_llm():
+    # Inicializa o modelo de linguagem
+    return ChatGroq(
+        model='llama-3.3-70b-versatile', # Modelo LLM a ser usado
+        temperature=0.2, # Baixa temperatura para respostas mais precisas
+        max_tokens=500 # Limite de tokens na resposta
+    )
+
 def obter_base_vetores_da_url(url):
     """Carrega o conteúdo de um website, divide o texto em pedaços e cria uma base vetorial a partir do conteúdo."""
     # Carrega o conteúdo do website
@@ -38,11 +46,7 @@ def obter_base_vetores_da_url(url):
 def obter_cadeia_recuperador_contexto(base_vetores):
     """Configura uma cadeia de recuperação de contexto baseada no histórico de conversação."""
     # Inicializa o modelo de linguagem
-    modelo = ChatGroq(
-        model='llama-3.3-70b-versatile', # Modelo LLM a ser usado
-        temperature=0.2, # Baixa temperatura para respostas mais precisas
-        max_tokens=500 # Limite de tokens na resposta
-    )
+    modelo = inicializar_modelo_llm()
 
     # Define o recuperador de documentos baseado na base vetorial
     recuperador = base_vetores.as_retriever()
@@ -61,11 +65,7 @@ def obter_cadeia_recuperador_contexto(base_vetores):
 def obter_cadeia_rag_conversacional(cadeia_recuperador):
     """Configura a cadeia de RAG conversacional para gerar respostas baseadas no contexto recuperado."""
     # Inicializa o modelo de linguagem
-    modelo = ChatGroq(
-        model='llama-3.3-70b-versatile', # Modelo LLM a ser usado
-        temperature=0.2, # Baixa temperatura para respostas mais precisas
-        max_tokens=500 # Limite de tokens na resposta
-    )
+    modelo = inicializar_modelo_llm()
 
     # Configura o prompt para geração de respostas
     prompt = ChatPromptTemplate.from_messages([
